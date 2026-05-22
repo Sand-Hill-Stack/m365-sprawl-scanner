@@ -13,9 +13,16 @@ $ErrorActionPreference = "Stop"
 
 # Helper to load ASCII art logo
 function Get-Logo {
-    $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $logoPath = Join-Path $scriptPath "assets/logo.txt"
-    if (Test-Path $logoPath) {
+    $logoPath = $null
+    if ($MyInvocation.MyCommand -and $MyInvocation.MyCommand.Path) {
+        $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+        $logoPath = Join-Path $scriptPath "assets/logo.txt"
+    } else {
+        # Fall back to current working directory if run via iex web-loader
+        $logoPath = Join-Path (Get-Location).Path "assets/logo.txt"
+    }
+
+    if ($logoPath -and (Test-Path $logoPath -ErrorAction SilentlyContinue)) {
         Get-Content $logoPath -Raw
     } else {
         # Sleek fallback header
@@ -536,31 +543,31 @@ $metricFormat = "  {0,-35} : {1,-18} {2}"
 Write-Host "================================================================================" -ForegroundColor Cyan
 Write-Host "                            M365 ENVIRONMENT BALANCE SHEET" -ForegroundColor White
 Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host (String::Format($metricFormat, "Total Tenant Files Scanned", $totalFilesCount, "[OK]")) -ForegroundColor White
-Write-Host (String::Format($metricFormat, "Unique Recent Authoritative Files", $uniqueRecentAuthoritativeCount, "[OK]")) -ForegroundColor White
+Write-Host ([string]::Format($metricFormat, "Total Tenant Files Scanned", $totalFilesCount, "[OK]")) -ForegroundColor White
+Write-Host ([string]::Format($metricFormat, "Unique Recent Authoritative Files", $uniqueRecentAuthoritativeCount, "[OK]")) -ForegroundColor White
 
 if ($duplicatesCount -gt 0) {
     $dupRatio = [Math]::Round(($duplicatesCount / $totalFilesCount) * 100, 1)
-    Write-Host (String::Format($metricFormat, "Answer Contamination Vectors (Dups)", "$duplicatesCount ($dupRatio%)", "[SPRAWL RISK]")) -ForegroundColor Yellow
+    Write-Host ([string]::Format($metricFormat, "Answer Contamination Vectors (Dups)", "$duplicatesCount ($dupRatio%)", "[SPRAWL RISK]")) -ForegroundColor Yellow
 } else {
-    Write-Host (String::Format($metricFormat, "Answer Contamination Vectors (Dups)", "0 (0.0%)", "[OPTIMAL]")) -ForegroundColor Green
+    Write-Host ([string]::Format($metricFormat, "Answer Contamination Vectors (Dups)", "0 (0.0%)", "[OPTIMAL]")) -ForegroundColor Green
 }
 
 if ($totalMediaFilesCount -gt 0) {
-    Write-Host (String::Format($metricFormat, "Trapped Knowledge Assets (Media)", "$totalMediaFilesCount files", "[BLINDSPOT]")) -ForegroundColor Red
-    Write-Host (String::Format($metricFormat, "Aggregated Untranscribed Runtime", "$totalMediaHours hours", "[BLINDSPOT]")) -ForegroundColor Red
+    Write-Host ([string]::Format($metricFormat, "Trapped Knowledge Assets (Media)", "$totalMediaFilesCount files", "[BLINDSPOT]")) -ForegroundColor Red
+    Write-Host ([string]::Format($metricFormat, "Aggregated Untranscribed Runtime", "$totalMediaHours hours", "[BLINDSPOT]")) -ForegroundColor Red
 } else {
-    Write-Host (String::Format($metricFormat, "Trapped Knowledge Assets (Media)", "0 files", "[OPTIMAL]")) -ForegroundColor Green
+    Write-Host ([string]::Format($metricFormat, "Trapped Knowledge Assets (Media)", "0 files", "[OPTIMAL]")) -ForegroundColor Green
 }
 
 Write-Host "--------------------------------------------------------------------------------" -ForegroundColor Gray
 
 if ($ceiColor -eq "Green") {
-    Write-Host (String::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Green
+    Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Green
 } elseif ($ceiColor -eq "Yellow") {
-    Write-Host (String::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Yellow
+    Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Yellow
 } else {
-    Write-Host (String::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Red
+    Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Red
 }
 
 Write-Host "================================================================================" -ForegroundColor Cyan
