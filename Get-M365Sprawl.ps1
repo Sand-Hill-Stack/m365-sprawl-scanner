@@ -34,12 +34,12 @@ function Get-Logo {
     }
 }
 
-# Colors and formatting helpers
+# Formatting helpers
 function Write-Header {
     param([string]$Text)
     Write-Host ""
-    Write-Host ">>> $Text" -ForegroundColor Cyan
-    Write-Host "--------------------------------------------------------------------------------" -ForegroundColor Gray
+    Write-Host ">>> $Text"
+    Write-Host "--------------------------------------------------------------------------------"
 }
 
 function Write-VisualBlock {
@@ -50,24 +50,24 @@ function Write-VisualBlock {
     )
     switch ($Type) {
         "OPTIMAL" {
-            Write-Host "  [OPTIMAL]      " -NoNewline -ForegroundColor Green
-            Write-Host $Title -ForegroundColor White
+            Write-Host "  [OPTIMAL]      " -NoNewline
+            Write-Host $Title
             foreach ($detail in $Details) {
-                Write-Host "                 $detail" -ForegroundColor Gray
+                Write-Host "                 $detail"
             }
         }
         "SPRAWL_RISK" {
-            Write-Host "  [SPRAWL RISK]  " -NoNewline -ForegroundColor Yellow
-            Write-Host $Title -ForegroundColor White
+            Write-Host "  [SPRAWL RISK]  " -NoNewline
+            Write-Host $Title
             foreach ($detail in $Details) {
-                Write-Host "                 $detail" -ForegroundColor Yellow
+                Write-Host "                 $detail"
             }
         }
         "BLINDSPOT" {
-            Write-Host "  [BLINDSPOT]    " -NoNewline -ForegroundColor Red
-            Write-Host $Title -ForegroundColor White
+            Write-Host "  [BLINDSPOT]    " -NoNewline
+            Write-Host $Title
             foreach ($detail in $Details) {
-                Write-Host "                 $detail" -ForegroundColor Red
+                Write-Host "                 $detail"
             }
         }
     }
@@ -76,25 +76,25 @@ function Write-VisualBlock {
 
 # Check and install Microsoft.Graph SDK if needed
 function Ensure-GraphSDK {
-    Write-Host "  [*] Checking Microsoft.Graph PowerShell SDK..." -NoNewline -ForegroundColor Gray
+    Write-Host "  [*] Checking Microsoft.Graph PowerShell SDK..." -NoNewline
     $authModule = Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication"
     $filesModule = Get-Module -ListAvailable -Name "Microsoft.Graph.Files"
 
     if (-not $authModule -or -not $filesModule) {
-        Write-Host " [MISSING]" -ForegroundColor Yellow
-        Write-Host "  [!] The Microsoft.Graph PowerShell SDK (v2.x+) is required for online scanning." -ForegroundColor Yellow
+        Write-Host " [MISSING]"
+        Write-Host "  [!] The Microsoft.Graph PowerShell SDK (v2.x+) is required for online scanning."
         $response = Read-Host "  [?] Would you like to install the required SDK modules now? (Y/N)"
         if ($response -match "^[Yy]") {
-            Write-Host "  [*] Installing Microsoft.Graph modules for CurrentUser..." -ForegroundColor Gray
+            Write-Host "  [*] Installing Microsoft.Graph modules for CurrentUser..."
             Install-Module -Name "Microsoft.Graph.Authentication" -Scope CurrentUser -AllowClobber -Force
             Install-Module -Name "Microsoft.Graph.Files" -Scope CurrentUser -AllowClobber -Force
-            Write-Host "  [✓] Microsoft.Graph SDK installed successfully." -ForegroundColor Green
+            Write-Host "  [✓] Microsoft.Graph SDK installed successfully."
         } else {
-            Write-Host "  [!] Cannot run online without Microsoft.Graph SDK. Falling back to offline/mock mode." -ForegroundColor Yellow
+            Write-Host "  [!] Cannot run online without Microsoft.Graph SDK. Falling back to offline/mock mode."
             $script:Offline = $true
         }
     } else {
-        Write-Host " [OK]" -ForegroundColor Green
+        Write-Host " [OK]"
     }
 }
 
@@ -152,7 +152,7 @@ function Get-SharePointFilesRecursively {
 
 # Generate rich simulated SharePoint sprawl data (Offline Mode)
 function Get-MockFiles {
-    Write-Host "  [*] Generating simulated corporate M365 tenant directory in volatile memory..." -ForegroundColor Gray
+    Write-Host "  [*] Generating simulated corporate M365 tenant directory in volatile memory..."
     Start-Sleep -Milliseconds 800
     
     $mockList = @()
@@ -203,19 +203,19 @@ function Start-SprawlSandbox {
     )
     
     Write-Host ""
-    Write-Host "================================================================================" -ForegroundColor Cyan
-    Write-Host "           LAUNCHING REMEDIATION SANDBOX (Start-SprawlSandbox)" -ForegroundColor White
-    Write-Host "================================================================================" -ForegroundColor Cyan
-    Write-Host "  Zero-Trust Architecture: Deploying private resources inside your perimeter." -ForegroundColor Green
+    Write-Host "================================================================================"
+    Write-Host "           LAUNCHING REMEDIATION SANDBOX (Start-SprawlSandbox)"
+    Write-Host "================================================================================"
+    Write-Host "  Zero-Trust Architecture: Deploying private resources inside your perimeter."
     Write-Host ""
 
     # Check for Azure Developer CLI (azd)
-    Write-Host "  [*] Verifying Azure Developer CLI (azd) availability..." -NoNewline -ForegroundColor Gray
+    Write-Host "  [*] Verifying Azure Developer CLI (azd) availability..." -NoNewline
     $azd = Get-Command azd -ErrorAction SilentlyContinue
     if (-not $azd) {
-        Write-Host " [MISSING]" -ForegroundColor Yellow
-        Write-Host "  [!] azd is required to provision the private sandboxed resource group." -ForegroundColor Yellow
-        Write-Host "  [*] Downloading official Microsoft azd installer..." -ForegroundColor Gray
+        Write-Host " [MISSING]"
+        Write-Host "  [!] azd is required to provision the private sandboxed resource group."
+        Write-Host "  [*] Downloading official Microsoft azd installer..."
         
         $isWin = [Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([Runtime.InteropServices.OSPlatform]::Windows)
         $isMac = [Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([Runtime.InteropServices.OSPlatform]::OSPlatform("MACOS"))
@@ -233,15 +233,15 @@ function Start-SprawlSandbox {
             $installCmd = "curl -fsSL https://aka.ms/install-azd.sh | bash"
             Invoke-Expression $installCmd
         }
-        Write-Host "  [✓] Azure Developer CLI installed successfully." -ForegroundColor Green
+        Write-Host "  [✓] Azure Developer CLI installed successfully."
     } else {
-        Write-Host " [OK] ($($azd.Source))" -ForegroundColor Green
+        Write-Host " [OK] ($($azd.Source))"
     }
 
     # Setting environment variables (Transient State Mapping)
     $activeTenant = if ($TenantId) { $TenantId } else { "Sand-Hill-Stack-Demo-Tenant-402a" }
     
-    Write-Host "  [*] Mapping computed sprawl metrics to volatile environment spaces..." -ForegroundColor Gray
+    Write-Host "  [*] Mapping computed sprawl metrics to volatile environment spaces..."
     [System.Environment]::SetEnvironmentVariable("AZURE_TENANT_ID", $activeTenant, "Process")
     [System.Environment]::SetEnvironmentVariable("M365_SPRAWL_TOTAL_FILES", $TotalFiles, "Process")
     [System.Environment]::SetEnvironmentVariable("M365_SPRAWL_DUPLICATE_COUNT", $DuplicatesCount, "Process")
@@ -250,52 +250,52 @@ function Start-SprawlSandbox {
     [System.Environment]::SetEnvironmentVariable("M365_SPRAWL_STATUS", $Status, "Process")
     
     Start-Sleep -Milliseconds 600
-    Write-Host "      Mapped: AZURE_TENANT_ID             = $activeTenant" -ForegroundColor Gray
-    Write-Host "      Mapped: M365_SPRAWL_TOTAL_FILES     = $TotalFiles" -ForegroundColor Gray
-    Write-Host "      Mapped: M365_SPRAWL_DUPLICATE_COUNT = $DuplicatesCount" -ForegroundColor Gray
-    Write-Host "      Mapped: M365_SPRAWL_CEI             = $CEI%" -ForegroundColor Gray
-    Write-Host "      Mapped: M365_SPRAWL_STATUS          = $Status" -ForegroundColor Gray
+    Write-Host "      Mapped: AZURE_TENANT_ID             = $activeTenant"
+    Write-Host "      Mapped: M365_SPRAWL_TOTAL_FILES     = $TotalFiles"
+    Write-Host "      Mapped: M365_SPRAWL_DUPLICATE_COUNT = $DuplicatesCount"
+    Write-Host "      Mapped: M365_SPRAWL_CEI             = $CEI%"
+    Write-Host "      Mapped: M365_SPRAWL_STATUS          = $Status"
     
     Write-Host ""
-    Write-Host "  [*] Initializing Certus Sandboxed Infrastructure template..." -ForegroundColor Gray
-    Write-Host "      Command: azd init -t sand-hill-certus-sandbox --no-prompt" -ForegroundColor Cyan
+    Write-Host "  [*] Initializing Certus Sandboxed Infrastructure template..."
+    Write-Host "      Command: azd init -t sand-hill-certus-sandbox --no-prompt"
     Start-Sleep -Milliseconds 1200
-    Write-Host "  [✓] Workspace template initialized." -ForegroundColor Green
+    Write-Host "  [✓] Workspace template initialized."
     
     Write-Host ""
-    Write-Host "  [*] Deploying isolated free-tier resources into Azure Tenant $activeTenant..." -ForegroundColor Gray
-    Write-Host "      Command: azd up --no-prompt" -ForegroundColor Cyan
+    Write-Host "  [*] Deploying isolated free-tier resources into Azure Tenant $activeTenant..."
+    Write-Host "      Command: azd up --no-prompt"
     
-    Write-Host "  [!] Running simulated deployment (Sandbox Dry-Run Mode)..." -ForegroundColor Yellow
+    Write-Host "  [!] Running simulated deployment (Sandbox Dry-Run Mode)..."
     for ($i = 1; $i -le 3; $i++) {
         Start-Sleep -Milliseconds 800
-        Write-Host "      Step $i/3: Provisioning Azure AI Search Service (1536-dim vector schema)... [OK]" -ForegroundColor Gray
+        Write-Host "      Step $i/3: Provisioning Azure AI Search Service (1536-dim vector schema)... [OK]"
     }
     
     Write-Host ""
-    Write-Host "================================================================================" -ForegroundColor Green
-    Write-Host "  [SUCCESS] Sandboxed Knowledge Workspace Provisioned!" -ForegroundColor Green
-    Write-Host "  Resource Group:   rg-certus-sandbox-volatile" -ForegroundColor White
-    Write-Host "  Security Model:   Security Trimming Enforced (Entra ID Group Integration)" -ForegroundColor White
-    Write-Host "  Service URL:    https://certus-sandbox.sandhillstack.ai/portal" -ForegroundColor Cyan
-    Write-Host "================================================================================" -ForegroundColor Green
+    Write-Host "================================================================================"
+    Write-Host "  [SUCCESS] Sandboxed Knowledge Workspace Provisioned!"
+    Write-Host "  Resource Group:   rg-certus-sandbox-volatile"
+    Write-Host "  Security Model:   Security Trimming Enforced (Entra ID Group Integration)"
+    Write-Host "  Service URL:    https://certus-sandbox.sandhillstack.ai/portal"
+    Write-Host "================================================================================"
     Write-Host ""
 }
 
 # Main script runtime
 Clear-Host
 $logo = Get-Logo
-Write-Host $logo -ForegroundColor DarkCyan
+Write-Host $logo
 
 Write-Header "SECURITY CONTEXT & DATA ISOLATION GUARANTEE"
-Write-Host "  Runtime Mode:       Volatile Memory Scan" -ForegroundColor White
-Write-Host "  Security Boundary:  Zero Data Exfiltration. All file metadata analyzed locally." -ForegroundColor Green
-Write-Host "  Interactive Auth:   Device Code Routing (login.microsoftonline.com)" -ForegroundColor Green
+Write-Host "  Runtime Mode:       Volatile Memory Scan"
+Write-Host "  Security Boundary:  Zero Data Exfiltration. All file metadata analyzed locally."
+Write-Host "  Interactive Auth:   Device Code Routing (login.microsoftonline.com)"
 
 if ($Offline) {
-    Write-Host "  Execution Space:    OFFLINE DEMO MODE (Simulated Corporative Sprawl)" -ForegroundColor Yellow
+    Write-Host "  Execution Space:    OFFLINE DEMO MODE (Simulated Corporative Sprawl)"
 } else {
-    Write-Host "  Execution Space:    ONLINE TENANT DISCOVERY MODE" -ForegroundColor Cyan
+    Write-Host "  Execution Space:    ONLINE TENANT DISCOVERY MODE"
 }
 
 $allFiles = @()
@@ -306,7 +306,7 @@ if (-not $Offline) {
     
     # Authenticate via Device Code
     try {
-        Write-Host "  [*] Connecting to Microsoft Graph API..." -ForegroundColor Gray
+        Write-Host "  [*] Connecting to Microsoft Graph API..."
         $connectParams = @{
             Scopes = @("Sites.Read.All", "User.Read.All")
             UseDeviceAuthentication = $true
@@ -315,35 +315,35 @@ if (-not $Offline) {
             $connectParams["TenantId"] = $TenantId
         }
         $session = Connect-MgGraph @connectParams
-        Write-Host "  [✓] Authenticated to Microsoft Graph." -ForegroundColor Green
+        Write-Host "  [✓] Authenticated to Microsoft Graph."
         
         # Get active sites
-        Write-Host "  [*] Querying active SharePoint Sites (limit $SiteLimit)..." -ForegroundColor Gray
+        Write-Host "  [*] Querying active SharePoint Sites (limit $SiteLimit)..."
         $sites = Get-MgSite -Top $SiteLimit -ErrorAction SilentlyContinue
         if ($null -eq $sites -or $sites.Count -eq 0) {
-            Write-Host "  [!] No sites found or access is restricted. Falling back to root site scan..." -ForegroundColor Yellow
+            Write-Host "  [!] No sites found or access is restricted. Falling back to root site scan..."
             $sites = @(Get-MgSite -SiteId "root" -ErrorAction SilentlyContinue)
         }
         
-        Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites." -ForegroundColor Green
+        Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites."
         
         # Scan files
         foreach ($site in $sites) {
-            Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))..." -ForegroundColor Gray
+            Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))..."
             $drives = Get-MgSiteDrive -SiteId $site.Id -ErrorAction SilentlyContinue
             if ($null -eq $drives) { continue }
             
             foreach ($drive in $drives) {
-                Write-Host "      -> Scanning Drive Library: $($drive.Name)..." -ForegroundColor Gray
+                Write-Host "      -> Scanning Drive Library: $($drive.Name)..."
                 $driveFiles = Get-SharePointFilesRecursively -DriveId $drive.Id
                 $allFiles += $driveFiles
             }
         }
-        Write-Host "  [✓] Directory Enumeration complete. Found $($allFiles.Count) total files." -ForegroundColor Green
+        Write-Host "  [✓] Directory Enumeration complete. Found $($allFiles.Count) total files."
         
     } catch {
-        Write-Host "  [ERROR] Graph API authentication or query failed: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "  [!] Switching to Offline Demonstration mode to run calculations." -ForegroundColor Yellow
+        Write-Host "  [ERROR] Graph API authentication or query failed: $($_.Exception.Message)"
+        Write-Host "  [!] Switching to Offline Demonstration mode to run calculations."
         $Offline = $true
     }
 }
@@ -351,11 +351,11 @@ if (-not $Offline) {
 if ($Offline) {
     Write-Header "GENERATING OFFLINE M365 TENANT MAP"
     $allFiles = Get-MockFiles
-    Write-Host "  [✓] Map loaded. Found $($allFiles.Count) simulated files." -ForegroundColor Green
+    Write-Host "  [✓] Map loaded. Found $($allFiles.Count) simulated files."
 }
 
 if ($allFiles.Count -eq 0) {
-    Write-Host "  [!] Zero files found to evaluate. Exiting." -ForegroundColor Yellow
+    Write-Host "  [!] Zero files found to evaluate. Exiting."
     exit 0
 }
 
@@ -363,7 +363,7 @@ if ($allFiles.Count -eq 0) {
 # Phase 2 & 3: Audit Engine & Analytics Execution
 # -----------------------------------------------------------------------------
 Write-Header "EXECUTING SPRAWL & BLINDSPOT DIAGNOSTICS"
-Write-Host "  [*] Parsing naming topologies and auditing media runtimes..." -ForegroundColor Gray
+Write-Host "  [*] Parsing naming topologies and auditing media runtimes..."
 Start-Sleep -Milliseconds 600
 
 # Suffix pattern to strip out version drift markers
@@ -540,58 +540,45 @@ if ($cei -lt 35) {
 Write-Header "THE DIAGNOSTIC LEDGER"
 
 $metricFormat = "  {0,-35} : {1,-18} {2}"
-Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host "                            M365 ENVIRONMENT BALANCE SHEET" -ForegroundColor White
-Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host ([string]::Format($metricFormat, "Total Tenant Files Scanned", $totalFilesCount, "[OK]")) -ForegroundColor White
-Write-Host ([string]::Format($metricFormat, "Unique Recent Authoritative Files", $uniqueRecentAuthoritativeCount, "[OK]")) -ForegroundColor White
+Write-Host "================================================================================"
+Write-Host "                            M365 ENVIRONMENT BALANCE SHEET"
+Write-Host "================================================================================"
+Write-Host ([string]::Format($metricFormat, "Total Tenant Files Scanned", $totalFilesCount, "[OK]"))
+Write-Host ([string]::Format($metricFormat, "Unique Recent Authoritative Files", $uniqueRecentAuthoritativeCount, "[OK]"))
 
 if ($duplicatesCount -gt 0) {
     $dupRatio = [Math]::Round(($duplicatesCount / $totalFilesCount) * 100, 1)
-    Write-Host ([string]::Format($metricFormat, "Answer Contamination Vectors (Dups)", "$duplicatesCount ($dupRatio%)", "[SPRAWL RISK]")) -ForegroundColor Yellow
+    Write-Host ([string]::Format($metricFormat, "Answer Contamination Vectors (Dups)", "$duplicatesCount ($dupRatio%)", "[SPRAWL RISK]"))
 } else {
-    Write-Host ([string]::Format($metricFormat, "Answer Contamination Vectors (Dups)", "0 (0.0%)", "[OPTIMAL]")) -ForegroundColor Green
+    Write-Host ([string]::Format($metricFormat, "Answer Contamination Vectors (Dups)", "0 (0.0%)", "[OPTIMAL]"))
 }
 
 if ($totalMediaFilesCount -gt 0) {
-    Write-Host ([string]::Format($metricFormat, "Trapped Knowledge Assets (Media)", "$totalMediaFilesCount files", "[BLINDSPOT]")) -ForegroundColor Red
-    Write-Host ([string]::Format($metricFormat, "Aggregated Untranscribed Runtime", "$totalMediaHours hours", "[BLINDSPOT]")) -ForegroundColor Red
+    Write-Host ([string]::Format($metricFormat, "Trapped Knowledge Assets (Media)", "$totalMediaFilesCount files", "[BLINDSPOT]"))
+    Write-Host ([string]::Format($metricFormat, "Aggregated Untranscribed Runtime", "$totalMediaHours hours", "[BLINDSPOT]"))
 } else {
-    Write-Host ([string]::Format($metricFormat, "Trapped Knowledge Assets (Media)", "0 files", "[OPTIMAL]")) -ForegroundColor Green
+    Write-Host ([string]::Format($metricFormat, "Trapped Knowledge Assets (Media)", "0 files", "[OPTIMAL]"))
 }
 
-Write-Host "--------------------------------------------------------------------------------" -ForegroundColor Gray
+Write-Host "--------------------------------------------------------------------------------"
 
-if ($ceiColor -eq "Green") {
-    Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Green
-} elseif ($ceiColor -eq "Yellow") {
-    Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Yellow
-} else {
-    Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel)) -ForegroundColor Red
-}
+Write-Host ([string]::Format($metricFormat, "Curation Efficiency Index (CEI)", "$cei%", $ceiLabel))
 
-Write-Host "================================================================================" -ForegroundColor Cyan
+Write-Host "================================================================================"
 Write-Host ""
 
 # -----------------------------------------------------------------------------
 # Present remediation steps
 # -----------------------------------------------------------------------------
-Write-Host "  >>> M365 Sprawl Diagnostic Complete." -ForegroundColor Green
-Write-Host "  The Curation Efficiency Index maps your tenant state to: " -NoNewline -ForegroundColor White
-if ($ceiColor -eq "Green") {
-    Write-Host "$ceiCategory" -ForegroundColor Green
-} elseif ($ceiColor -eq "Yellow") {
-    Write-Host "$ceiCategory" -ForegroundColor Yellow
-} else {
-    Write-Host "$ceiCategory" -ForegroundColor Red
-}
+Write-Host "  >>> M365 Sprawl Diagnostic Complete."
+Write-Host "  The Curation Efficiency Index maps your tenant state to: $ceiCategory"
 
 Write-Host ""
-Write-Host "  To isolate these duplicates, transcribe unstructured media, and host your private" -ForegroundColor Gray
-Write-Host "  restricted LLM knowledge base without data leakage, initialize the secure sandbox." -ForegroundColor Gray
+Write-Host "  To isolate these duplicates, transcribe unstructured media, and host your private"
+Write-Host "  restricted LLM knowledge base without data leakage, initialize the secure sandbox."
 Write-Host ""
-Write-Host "  To deploy the sandbox, run:" -ForegroundColor Gray
-Write-Host "      Start-SprawlSandbox" -ForegroundColor Cyan
+Write-Host "  To deploy the sandbox, run:"
+Write-Host "      Start-SprawlSandbox"
 Write-Host ""
 
 # Keep variables available in global scope if run in console so user can call Start-SprawlSandbox
