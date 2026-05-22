@@ -29,13 +29,23 @@ This utility serves as the catalyst for demonstrating SharePoint version chaos, 
 
 ---
 
-## 2. Absolute Zero-Exfiltration Security Guarantee
+## 2. Zero-Trust Security & Data Isolation Architecture
 
-Because this script is designed for enterprise global administrators handling highly sensitive in-tenant metadata:
+Because this utility is targeted at enterprise administrators who handle sensitive data corporate-wide, adherence to strict security boundaries is architecturally enforced:
 
-* **100% Volatile Local Execution:** All parsing, path matching, string cleaning, runtime calculations, and analytical reports are processed entirely within the volatile memory space of your local machine.
-* **No Telemetry / No Tracking:** Under no circumstances are file names, path listings, user details, or tenant identifiers transmitted to external servers. Your tenant data remains strictly inside your session boundaries.
-* **Inspectable & Auditable:** Written in highly readable, non-obfuscated cross-platform PowerShell Core (`pwsh`). Enterprise security teams can review every single line of code prior to execution.
+> [!IMPORTANT]
+> **THE VOLATILE-ONLY SECURITY GUARANTEE**
+> * **Absolute Zero Exfiltration:** All metadata processing, file loops, and path evaluation algorithms occur *entirely* within the local terminal's volatile memory space (RAM). 
+> * **No Cloud Backchannels:** No file names, path routes, tenant IDs, email addresses, or analytical summaries are transmitted to external servers, APIs, or third parties.
+> * **Zero Local Footprint:** The tool runs as a completely transient, on-demand memory task. It does not modify local system paths, install hidden system daemons, write temporary cache files, or leave behind metadata databases.
+
+### Key Security & Trust Pillars:
+
+* **Official Identity Gateway Integration:** All authentication is routed directly through Microsoft's secure native Entra ID (formerly Azure AD) endpoints (`login.microsoftonline.com`) using standard OAuth Device Code flows. Your credentials are never handled or seen by the script.
+* **Minimum Privilege Delegation:** The script explicitly requests read-only directory scopes (`Sites.Read.All` and `User.Read.All`). It cannot modify or delete files, delete directories, or access user emails/calendars.
+* **Fully Auditable Source Code:** The script is completely open-source, written in standard cross-platform PowerShell Core (`pwsh`). It is entirely un-obfuscated and self-contained, allowing corporate cybersecurity teams to inspect every line prior to execution.
+* **Encrypted API Channels:** All communications between your local terminal and Microsoft 365 are conducted over standard TLS 1.2/1.3 encrypted HTTPS channels managed natively by the Microsoft.Graph SDK.
+
 
 ---
 
