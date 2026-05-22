@@ -49,36 +49,78 @@ Because this utility is targeted at enterprise administrators who handle sensiti
 
 ---
 
-## 3. Installation & Quick Start
+## 3. Prerequisites & Dependency Setup
 
-The scanner runs cross-platform on **Windows**, **macOS**, and **Linux** via **PowerShell Core**.
+The scanner runs cross-platform on **Windows**, **macOS**, and **Linux** via **PowerShell Core (`pwsh`)**.
 
-### Dynamic One-Liner Execution:
-Execute the scanner instantly in your terminal session:
+### Step 1: Install PowerShell Core (`pwsh`)
+If you do not have PowerShell Core installed, set it up using the command below matching your OS:
 
+* **macOS (via Homebrew):**
+  ```bash
+  brew install powershell
+  ```
+  *(Alternatively, download the official `.pkg` installer from the [PowerShell Releases page](https://github.com/PowerShell/PowerShell/releases)).*
+
+* **Windows (via winget):**
+  ```powershell
+  winget install --id Microsoft.Powershell --source winget
+  ```
+
+* **Linux (Ubuntu/Debian):**
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y powershell
+  ```
+
+### Step 2: Install Microsoft Graph SDK (Optional / Self-Healing)
+The scanner depends on the official `Microsoft.Graph` PowerShell SDK modules. 
+> [!TIP]
+> **No manual setup required:** The script will automatically check for these dependencies upon execution. If they are missing, it will securely prompt you and offer to install them to your local user scope (`-Scope CurrentUser`) dynamically!
+
+If you prefer to pre-install them manually, run this inside your `pwsh` shell:
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -Command "iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Sand-Hill-Stack/m365-sprawl-scanner/main/Get-M365Sprawl.ps1')"
+Install-Module -Name Microsoft.Graph.Authentication -Scope CurrentUser -AllowClobber -Force
+Install-Module -Name Microsoft.Graph.Files -Scope CurrentUser -AllowClobber -Force
 ```
 
-### Manual Installation:
+---
+
+## 4. Run the Scanner
+
+Once PowerShell (`pwsh`) is running, you can execute the tool using a single-line command or a manual download.
+
+### Option A: Direct Web-Load execution (Zero Download)
+Start the shell by typing `pwsh` in your terminal, then paste the following to execute directly in volatile memory:
+
+```powershell
+iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Sand-Hill-Stack/m365-sprawl-scanner/main/Get-M365Sprawl.ps1')
+```
+
+### Option B: Local Repository execution
 1. Clone the public repository:
    ```bash
    git clone https://github.com/Sand-Hill-Stack/m365-sprawl-scanner.git
    cd m365-sprawl-scanner
    ```
-2. Run the scanner:
-   * **Demo / Offline Mode (Simulated data, no login required):**
+2. Enter the PowerShell Core terminal:
+   ```bash
+   pwsh
+   ```
+3. Run the scanner in your desired mode:
+   * **Demo / Offline Mode (Simulated metadata, no M365 account required):**
      ```powershell
      ./Get-M365Sprawl.ps1 -Offline
      ```
-   * **Interactive M365 Scan (Authenticates securely to your tenant):**
+   * **Interactive Cloud Mode (Connects securely to your M365 cloud environment):**
      ```powershell
      ./Get-M365Sprawl.ps1
      ```
 
+
 ---
 
-## 4. Technical Specs & Permissions
+## 5. Technical Specs & Permissions
 
 * **Environment:** PowerShell Core (`pwsh` v7.x or later recommended).
 * **Dependencies:** `Microsoft.Graph` PowerShell SDK (automatically checked and optionally installed for CurrentUser).
@@ -89,7 +131,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -Command "iex (New-Object System.Net.Web
 
 ---
 
-## 5. Diagnostic & Calculation Pipeline
+## 6. Diagnostic & Calculation Pipeline
 
 ### Phase 1: Directory Enumeration
 Connects to M365 using secure Graph tokens, lists active SharePoint libraries, and crawls folders recursively. It maps metadata (names, sizes, modification dates) while isolating media containers: `.mp4`, `.mov`, `.mkv`, `.wav`, and `.mp3`.
@@ -115,7 +157,7 @@ $$Curation\ Efficiency\ Index = \left( \frac{\text{Unique, Recent Authoritative 
 
 ---
 
-## 6. The Diagnostic Ledger (Console UI)
+## 7. The Diagnostic Ledger (Console UI)
 
 The script renders high-fidelity colored blocks for audited folders:
 * `[OPTIMAL]` (Green): Pristine folders with clean files.
@@ -140,7 +182,7 @@ Concludes with the **Diagnostic Ledger** summary balance sheet:
 
 ---
 
-## 7. Remediation via `Start-SprawlSandbox`
+## 8. Remediation via `Start-SprawlSandbox`
 
 If your CEI score indicates version chaos, the CLI publishes a quick remediation bootstrap routine:
 
@@ -155,7 +197,7 @@ Start-SprawlSandbox
 
 ---
 
-## 8. License & Governance
+## 9. License & Governance
 
 Licensed under the permissive **MIT License**. Created and maintained by **Sand Hill Stack Operations**.
 
