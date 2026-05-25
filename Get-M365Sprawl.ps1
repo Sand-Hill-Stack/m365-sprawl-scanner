@@ -250,7 +250,7 @@ Write-Host $logo
 Write-Header "SECURITY CONTEXT & DATA ISOLATION GUARANTEE"
 Write-Host "  Runtime Mode:       Volatile Memory Scan"
 Write-Host "  Security Boundary:  Zero Data Exfiltration. All file metadata analyzed locally."
-Write-Host "  Interactive Auth:   Device Code Routing (login.microsoftonline.com)"
+Write-Host "  Interactive Auth:   Secure OAuth Loopback Browser Flow (login.microsoftonline.com)"
 Write-Host "  Execution Space:    ONLINE TENANT DISCOVERY MODE"
 
 $allFiles = @()
@@ -258,12 +258,11 @@ $allFiles = @()
 Write-Header "AUTHENTICATING & SCANNING ENVIRONMENT"
 Ensure-GraphSDK
 
-# Authenticate via Device Code
+# Authenticate via Interactive Browser Flow
 try {
     Write-Host "  [*] Connecting to Microsoft Graph API..."
     $connectParams = @{
         Scopes = @("Sites.Read.All", "User.Read.All")
-        UseDeviceAuthentication = $true
     }
     if ($TenantId) {
         $connectParams["TenantId"] = $TenantId

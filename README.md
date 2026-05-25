@@ -30,7 +30,7 @@ Because this utility is targeted at enterprise administrators who handle sensiti
 
 ### Key Security & Trust Pillars:
 
-* **Official Identity Gateway Integration:** All authentication is routed directly through Microsoft's secure native Entra ID (formerly Azure AD) endpoints (`login.microsoftonline.com`) using standard OAuth Device Code flows. Your credentials are never handled or seen by the script.
+* **Official Identity Gateway Integration:** All authentication is routed directly through Microsoft's secure native Entra ID (formerly Azure AD) endpoints (`login.microsoftonline.com`) using standard secure OAuth interactive flows. Your credentials are never handled or seen by the script.
 * **Minimum Privilege Delegation:** The script explicitly requests read-only directory scopes (`Sites.Read.All` and `User.Read.All`). It cannot modify or delete files, delete directories, or access user emails/calendars.
 * **Fully Auditable Source Code:** The script is completely open-source, written in standard cross-platform PowerShell Core (`pwsh`). It is entirely un-obfuscated and self-contained, allowing corporate cybersecurity teams to inspect every line prior to execution.
 * **Encrypted API Channels:** All communications between your local terminal and Microsoft 365 are conducted over standard TLS 1.2/1.3 encrypted HTTPS channels managed natively by the Microsoft.Graph SDK.
@@ -81,7 +81,7 @@ Once PowerShell (`pwsh`) is running, you can execute the tool using a single-lin
 
 > [!TIP]
 > **RECOMMENDED FOR DEMOS (PREVENT TIMEOUTS):**
-> Standard Microsoft Graph Device Code logins expire in 120 seconds if you are distracted. To guarantee a smooth, stress-free demo, **pre-authenticate your session beforehand**. The scanner will dynamically detect the active authenticated session and execute immediately without prompting!
+> Standard Microsoft Graph authentication prompts can time out if you are distracted. To guarantee a smooth, stress-free demo, **pre-authenticate your session beforehand**. The scanner will dynamically detect the active authenticated session and execute immediately without prompting!
 >
 > Run this first inside your `pwsh` shell to pre-authenticate:
 > ```powershell
@@ -121,7 +121,7 @@ iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercont
 
 * **Environment:** PowerShell Core (`pwsh` v7.x or later recommended).
 * **Dependencies:** `Microsoft.Graph` PowerShell SDK (automatically checked and optionally installed for CurrentUser).
-* **Authentication Flow:** Interactive OAuth Device Code flow routed strictly through Microsoft's official identity endpoint (`login.microsoftonline.com`).
+* **Authentication Flow:** Secure interactive OAuth browser loopback flow routed strictly through Microsoft's official identity endpoint (`login.microsoftonline.com`).
 * **Required Minimum Permissions:** 
   * `Sites.Read.All` - Required to enumerate SharePoint communication/team sites and document libraries.
   * `User.Read.All` - Required to map current admin user metadata.
