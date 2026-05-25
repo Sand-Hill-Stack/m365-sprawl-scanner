@@ -1,16 +1,5 @@
 # M365 Sprawl Scanner (`m365-sprawl-scanner`)
 
-```text
-  ███████╗ █████╗ ███╗   ██╗██████╗     ██╗  ██╗██╗██╗     ██╗          ██████╗████████╗ █████╗  ██████╗██╗  ██╗
-  ██╔════╝██╔══██╗████╗  ██║██╔══██╗    ██║  ██║██║██║     ██║         ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║  ██║
-  ███████╗███████║██╔██╗ ██║██║  ██║    ███████║██║██║     ██║         ╚█████╗     ██║   ███████║██║     ███████║
-  ╚════██║██╔══██║██║╚██╗██║██║  ██║    ██╔══██║██║██║     ██║          ╚═══██╗    ██║   ██╔══██║██║     ██╔══██║
-  ███████║██║  ██║██║ ╚████║██████╔╝    ██║  ██║██║███████╗███████╗    ██████╔╝    ██║   ██║  ██║╚██████╗██║  ██║
-  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═╝  ╚═╝╚═╝╚══════╝╚══════╝    ╚═════╝     ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
-  
-                                  ---  S A N D   H I L L   S T A C K  ---
-```
-
 Utility-first, zero-data-leak command-line scanner designed for enterprise IT administrators to map document version chaos, calculate un-transcribed audio/video search blindspots, and deploy isolated, private in-tenant knowledge workspaces.
 
 ---
