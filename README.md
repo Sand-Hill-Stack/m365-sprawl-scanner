@@ -79,8 +79,17 @@ Install-Module -Name Microsoft.Graph.Files -Scope CurrentUser -AllowClobber -For
 
 Once PowerShell (`pwsh`) is running, you can execute the tool using a single-line command or a manual download.
 
+> [!TIP]
+> **RECOMMENDED FOR DEMOS (PREVENT TIMEOUTS):**
+> Standard Microsoft Graph Device Code logins expire in 120 seconds if you are distracted. To guarantee a smooth, stress-free demo, **pre-authenticate your session beforehand**. The scanner will dynamically detect the active authenticated session and execute immediately without prompting!
+>
+> Run this first inside your `pwsh` shell to pre-authenticate:
+> ```powershell
+> Connect-MgGraph -Scopes "Sites.Read.All", "User.Read.All"
+> ```
+
 ### Option A: Direct Web-Load execution (Zero Download)
-Start the shell by typing `pwsh` in your terminal, then paste the following to execute directly in volatile memory:
+Start the shell by typing `pwsh` in your terminal, pre-authenticate (as recommended above), and paste the following to execute directly in volatile memory:
 
 ```powershell
 iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Sand-Hill-Stack/m365-sprawl-scanner/main/Get-M365Sprawl.ps1')
@@ -96,7 +105,11 @@ iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercont
    ```bash
    pwsh
    ```
-3. Run the scanner:
+3. Pre-authenticate your session (recommended):
+   ```powershell
+   Connect-MgGraph -Scopes "Sites.Read.All", "User.Read.All"
+   ```
+4. Run the scanner:
    ```powershell
    ./Get-M365Sprawl.ps1
    ```
