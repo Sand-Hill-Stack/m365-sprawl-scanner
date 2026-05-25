@@ -78,8 +78,9 @@ function Ensure-GraphSDK {
     Write-Host "  [*] Checking Microsoft.Graph PowerShell SDK..." -NoNewline
     $authModule = Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication"
     $filesModule = Get-Module -ListAvailable -Name "Microsoft.Graph.Files"
+    $sitesModule = Get-Module -ListAvailable -Name "Microsoft.Graph.Sites"
 
-    if (-not $authModule -or -not $filesModule) {
+    if (-not $authModule -or -not $filesModule -or -not $sitesModule) {
         Write-Host " [MISSING]"
         Write-Host "  [!] The Microsoft.Graph PowerShell SDK (v2.x+) is required for scanning."
         $response = Read-Host "  [?] Would you like to install the required SDK modules now? (Y/N)"
@@ -87,6 +88,7 @@ function Ensure-GraphSDK {
             Write-Host "  [*] Installing Microsoft.Graph modules for CurrentUser..."
             Install-Module -Name "Microsoft.Graph.Authentication" -Scope CurrentUser -AllowClobber -Force
             Install-Module -Name "Microsoft.Graph.Files" -Scope CurrentUser -AllowClobber -Force
+            Install-Module -Name "Microsoft.Graph.Sites" -Scope CurrentUser -AllowClobber -Force
             Write-Host "  [✓] Microsoft.Graph SDK installed successfully."
         } else {
             Write-Host "  [!] Cannot run without Microsoft.Graph SDK. Exiting."

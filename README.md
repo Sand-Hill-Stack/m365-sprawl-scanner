@@ -71,6 +71,7 @@ If you prefer to pre-install them manually, run this inside your `pwsh` shell:
 ```powershell
 Install-Module -Name Microsoft.Graph.Authentication -Scope CurrentUser -AllowClobber -Force
 Install-Module -Name Microsoft.Graph.Files -Scope CurrentUser -AllowClobber -Force
+Install-Module -Name Microsoft.Graph.Sites -Scope CurrentUser -AllowClobber -Force
 ```
 
 ---
