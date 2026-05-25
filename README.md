@@ -96,15 +96,10 @@ iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercont
    ```bash
    pwsh
    ```
-3. Run the scanner in your desired mode:
-   * **Demo / Offline Mode (Simulated metadata, no M365 account required):**
-     ```powershell
-     ./Get-M365Sprawl.ps1 -Offline
-     ```
-   * **Interactive Cloud Mode (Connects securely to your M365 cloud environment):**
-     ```powershell
-     ./Get-M365Sprawl.ps1
-     ```
+3. Run the scanner:
+   ```powershell
+   ./Get-M365Sprawl.ps1
+   ```
 
 
 ---

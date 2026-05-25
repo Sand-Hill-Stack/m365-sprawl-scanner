@@ -4,7 +4,6 @@
 # Zero Data Exfiltration Guarantee (100% local volatile memory operations)
 
 param (
-    [switch]$Offline,
     [int]$SiteLimit = 10,
     [string]$TenantId
 )
@@ -82,7 +81,7 @@ function Ensure-GraphSDK {
 
     if (-not $authModule -or -not $filesModule) {
         Write-Host " [MISSING]"
-        Write-Host "  [!] The Microsoft.Graph PowerShell SDK (v2.x+) is required for online scanning."
+        Write-Host "  [!] The Microsoft.Graph PowerShell SDK (v2.x+) is required for scanning."
         $response = Read-Host "  [?] Would you like to install the required SDK modules now? (Y/N)"
         if ($response -match "^[Yy]") {
             Write-Host "  [*] Installing Microsoft.Graph modules for CurrentUser..."
@@ -90,8 +89,8 @@ function Ensure-GraphSDK {
             Install-Module -Name "Microsoft.Graph.Files" -Scope CurrentUser -AllowClobber -Force
             Write-Host "  [✓] Microsoft.Graph SDK installed successfully."
         } else {
-            Write-Host "  [!] Cannot run online without Microsoft.Graph SDK. Falling back to offline/mock mode."
-            $script:Offline = $true
+            Write-Host "  [!] Cannot run without Microsoft.Graph SDK. Exiting."
+            exit 1
         }
     } else {
         Write-Host " [OK]"
@@ -150,46 +149,7 @@ function Get-SharePointFilesRecursively {
     return $files
 }
 
-# Generate rich simulated SharePoint sprawl data (Offline Mode)
-function Get-MockFiles {
-    Write-Host "  [*] Generating simulated corporate M365 tenant directory in volatile memory..."
-    Start-Sleep -Milliseconds 800
-    
-    $mockList = @()
-    $now = Get-Date
 
-    # Helper to generate mock files
-    # Folder: /Corporate Design/
-    $mockList += [PSCustomObject]@{ Name="Project_Alpha_Spec_v1.docx"; Path="Corporate Design/Project_Alpha_Spec_v1.docx"; ParentFolder="Corporate Design"; Size=120450; LastModified=$now.AddDays(-15); Created=$now.AddDays(-16); VideoDuration=$null; AudioDuration=$null; Extension=".docx" }
-    $mockList += [PSCustomObject]@{ Name="Project_Alpha_Spec_v2.docx"; Path="Corporate Design/Project_Alpha_Spec_v2.docx"; ParentFolder="Corporate Design"; Size=125800; LastModified=$now.AddDays(-10); Created=$now.AddDays(-16); VideoDuration=$null; AudioDuration=$null; Extension=".docx" }
-    $mockList += [PSCustomObject]@{ Name="Project_Alpha_Spec_FINAL.docx"; Path="Corporate Design/Project_Alpha_Spec_FINAL.docx"; ParentFolder="Corporate Design"; Size=126200; LastModified=$now.AddDays(-5); Created=$now.AddDays(-16); VideoDuration=$null; AudioDuration=$null; Extension=".docx" }
-    $mockList += [PSCustomObject]@{ Name="Project_Alpha_Spec_FINAL_v2_draft.docx"; Path="Corporate Design/Project_Alpha_Spec_FINAL_v2_draft.docx"; ParentFolder="Corporate Design"; Size=128900; LastModified=$now.AddDays(-2); Created=$now.AddDays(-16); VideoDuration=$null; AudioDuration=$null; Extension=".docx" }
-    $mockList += [PSCustomObject]@{ Name="logo_vector.ai"; Path="Corporate Design/logo_vector.ai"; ParentFolder="Corporate Design"; Size=5601200; LastModified=$now.AddDays(-30); Created=$now.AddDays(-30); VideoDuration=$null; AudioDuration=$null; Extension=".ai" }
-
-    # Folder: /Marketing/Campaigns/2026/
-    $mockList += [PSCustomObject]@{ Name="Q2_Campaign_Roadmap.pptx"; Path="Marketing/Campaigns/2026/Q2_Campaign_Roadmap.pptx"; ParentFolder="Marketing/Campaigns/2026"; Size=4520900; LastModified=$now.AddDays(-4); Created=$now.AddDays(-6); VideoDuration=$null; AudioDuration=$null; Extension=".pptx" }
-    $mockList += [PSCustomObject]@{ Name="Q2_Campaign_Roadmap_copy.pptx"; Path="Marketing/Campaigns/2026/Q2_Campaign_Roadmap_copy.pptx"; ParentFolder="Marketing/Campaigns/2026"; Size=4520900; LastModified=$now.AddDays(-4); Created=$now.AddDays(-4); VideoDuration=$null; AudioDuration=$null; Extension=".pptx" }
-    $mockList += [PSCustomObject]@{ Name="Q2_Campaign_Roadmap_backup.pptx"; Path="Marketing/Campaigns/2026/Q2_Campaign_Roadmap_backup.pptx"; ParentFolder="Marketing/Campaigns/2026"; Size=4521000; LastModified=$now.AddDays(-3); Created=$now.AddDays(-3); VideoDuration=$null; AudioDuration=$null; Extension=".pptx" }
-    $mockList += [PSCustomObject]@{ Name="promo_video_draft.mp4"; Path="Marketing/Campaigns/2026/promo_video_draft.mp4"; ParentFolder="Marketing/Campaigns/2026"; Size=142090400; LastModified=$now.AddDays(-1); Created=$now.AddDays(-2); VideoDuration=1450000; AudioDuration=$null; Extension=".mp4" } # ~24 mins
-
-    # Folder: /Finance/Audit/
-    $mockList += [PSCustomObject]@{ Name="Internal_Ledger_2025.xlsx"; Path="Finance/Audit/Internal_Ledger_2025.xlsx"; ParentFolder="Finance/Audit"; Size=982100; LastModified=$now.AddDays(-60); Created=$now.AddDays(-90); VideoDuration=$null; AudioDuration=$null; Extension=".xlsx" }
-    $mockList += [PSCustomObject]@{ Name="Internal_Ledger_2025 (1).xlsx"; Path="Finance/Audit/Internal_Ledger_2025 (1).xlsx"; ParentFolder="Finance/Audit"; Size=982100; LastModified=$now.AddDays(-45); Created=$now.AddDays(-45); VideoDuration=$null; AudioDuration=$null; Extension=".xlsx" }
-    $mockList += [PSCustomObject]@{ Name="Internal_Ledger_2025_backup.xlsx"; Path="Finance/Audit/Internal_Ledger_2025_backup.xlsx"; ParentFolder="Finance/Audit"; Size=982500; LastModified=$now.AddDays(-30); Created=$now.AddDays(-30); VideoDuration=$null; AudioDuration=$null; Extension=".xlsx" }
-    $mockList += [PSCustomObject]@{ Name="tax_declaration_signed.pdf"; Path="Finance/Audit/tax_declaration_signed.pdf"; ParentFolder="Finance/Audit"; Size=450900; LastModified=$now.AddDays(-10); Created=$now.AddDays(-10); VideoDuration=$null; AudioDuration=$null; Extension=".pdf" }
-
-    # Folder: /Board Sync/
-    $mockList += [PSCustomObject]@{ Name="BoardMeeting_May2026.mp4"; Path="Board Sync/BoardMeeting_May2026.mp4"; ParentFolder="Board Sync"; Size=950820100; LastModified=$now.AddDays(-2); Created=$now.AddDays(-2); VideoDuration=7200000; AudioDuration=$null; Extension=".mp4" } # 2 hours
-    $mockList += [PSCustomObject]@{ Name="CEO_Audio_Briefing.wav"; Path="Board Sync/CEO_Audio_Briefing.wav"; ParentFolder="Board Sync"; Size=45902000; LastModified=$now.AddDays(-1); Created=$now.AddDays(-1); VideoDuration=$null; AudioDuration=1800000; Extension=".wav" } # 30 mins
-    $mockList += [PSCustomObject]@{ Name="Strategic_Outlines.docx"; Path="Board Sync/Strategic_Outlines.docx"; ParentFolder="Board Sync"; Size=45600; LastModified=$now.AddDays(-5); Created=$now.AddDays(-5); VideoDuration=$null; AudioDuration=$null; Extension=".docx" }
-
-    # Folder: /Engineering/Clean/ (No duplicates, no media files)
-    $mockList += [PSCustomObject]@{ Name="System_Architecture.md"; Path="Engineering/Clean/System_Architecture.md"; ParentFolder="Engineering/Clean"; Size=12000; LastModified=$now.AddDays(-20); Created=$now.AddDays(-25); VideoDuration=$null; AudioDuration=$null; Extension=".md" }
-    $mockList += [PSCustomObject]@{ Name="Kubernetes_Deployment.yaml"; Path="Engineering/Clean/Kubernetes_Deployment.yaml"; ParentFolder="Engineering/Clean"; Size=4500; LastModified=$now.AddDays(-18); Created=$now.AddDays(-18); VideoDuration=$null; AudioDuration=$null; Extension=".yaml" }
-    $mockList += [PSCustomObject]@{ Name="Security_Audit.pdf"; Path="Engineering/Clean/Security_Audit.pdf"; ParentFolder="Engineering/Clean"; Size=850400; LastModified=$now.AddDays(-12); Created=$now.AddDays(-12); VideoDuration=$null; AudioDuration=$null; Extension=".pdf" }
-
-    return $mockList
-}
 
 # The Sandbox Bootstrapper Function
 function Start-SprawlSandbox {
@@ -291,67 +251,53 @@ Write-Header "SECURITY CONTEXT & DATA ISOLATION GUARANTEE"
 Write-Host "  Runtime Mode:       Volatile Memory Scan"
 Write-Host "  Security Boundary:  Zero Data Exfiltration. All file metadata analyzed locally."
 Write-Host "  Interactive Auth:   Device Code Routing (login.microsoftonline.com)"
-
-if ($Offline) {
-    Write-Host "  Execution Space:    OFFLINE DEMO MODE (Simulated Corporative Sprawl)"
-} else {
-    Write-Host "  Execution Space:    ONLINE TENANT DISCOVERY MODE"
-}
+Write-Host "  Execution Space:    ONLINE TENANT DISCOVERY MODE"
 
 $allFiles = @()
 
-if (-not $Offline) {
-    Write-Header "AUTHENTICATING & SCANNING ENVIRONMENT"
-    Ensure-GraphSDK
-    
-    # Authenticate via Device Code
-    try {
-        Write-Host "  [*] Connecting to Microsoft Graph API..."
-        $connectParams = @{
-            Scopes = @("Sites.Read.All", "User.Read.All")
-            UseDeviceAuthentication = $true
-        }
-        if ($TenantId) {
-            $connectParams["TenantId"] = $TenantId
-        }
-        $session = Connect-MgGraph @connectParams
-        Write-Host "  [✓] Authenticated to Microsoft Graph."
-        
-        # Get active sites
-        Write-Host "  [*] Querying active SharePoint Sites (limit $SiteLimit)..."
-        $sites = Get-MgSite -Top $SiteLimit -ErrorAction SilentlyContinue
-        if ($null -eq $sites -or $sites.Count -eq 0) {
-            Write-Host "  [!] No sites found or access is restricted. Falling back to root site scan..."
-            $sites = @(Get-MgSite -SiteId "root" -ErrorAction SilentlyContinue)
-        }
-        
-        Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites."
-        
-        # Scan files
-        foreach ($site in $sites) {
-            Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))..."
-            $drives = Get-MgSiteDrive -SiteId $site.Id -ErrorAction SilentlyContinue
-            if ($null -eq $drives) { continue }
-            
-            foreach ($drive in $drives) {
-                Write-Host "      -> Scanning Drive Library: $($drive.Name)..."
-                $driveFiles = Get-SharePointFilesRecursively -DriveId $drive.Id
-                $allFiles += $driveFiles
-            }
-        }
-        Write-Host "  [✓] Directory Enumeration complete. Found $($allFiles.Count) total files."
-        
-    } catch {
-        Write-Host "  [ERROR] Graph API authentication or query failed: $($_.Exception.Message)"
-        Write-Host "  [!] Switching to Offline Demonstration mode to run calculations."
-        $Offline = $true
-    }
-}
+Write-Header "AUTHENTICATING & SCANNING ENVIRONMENT"
+Ensure-GraphSDK
 
-if ($Offline) {
-    Write-Header "GENERATING OFFLINE M365 TENANT MAP"
-    $allFiles = Get-MockFiles
-    Write-Host "  [✓] Map loaded. Found $($allFiles.Count) simulated files."
+# Authenticate via Device Code
+try {
+    Write-Host "  [*] Connecting to Microsoft Graph API..."
+    $connectParams = @{
+        Scopes = @("Sites.Read.All", "User.Read.All")
+        UseDeviceAuthentication = $true
+    }
+    if ($TenantId) {
+        $connectParams["TenantId"] = $TenantId
+    }
+    $session = Connect-MgGraph @connectParams
+    Write-Host "  [✓] Authenticated to Microsoft Graph."
+    
+    # Get active sites
+    Write-Host "  [*] Querying active SharePoint Sites (limit $SiteLimit)..."
+    $sites = Get-MgSite -Top $SiteLimit -ErrorAction SilentlyContinue
+    if ($null -eq $sites -or $sites.Count -eq 0) {
+        Write-Host "  [!] No sites found or access is restricted. Falling back to root site scan..."
+        $sites = @(Get-MgSite -SiteId "root" -ErrorAction SilentlyContinue)
+    }
+    
+    Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites."
+    
+    # Scan files
+    foreach ($site in $sites) {
+        Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))..."
+        $drives = Get-MgSiteDrive -SiteId $site.Id -ErrorAction SilentlyContinue
+        if ($null -eq $drives) { continue }
+        
+        foreach ($drive in $drives) {
+            Write-Host "      -> Scanning Drive Library: $($drive.Name)..."
+            $driveFiles = Get-SharePointFilesRecursively -DriveId $drive.Id
+            $allFiles += $driveFiles
+        }
+    }
+    Write-Host "  [✓] Directory Enumeration complete. Found $($allFiles.Count) total files."
+    
+} catch {
+    Write-Host "  [ERROR] Graph API authentication or query failed: $($_.Exception.Message)"
+    exit 1
 }
 
 if ($allFiles.Count -eq 0) {
@@ -491,7 +437,7 @@ foreach ($med in $mediaFiles) {
     } elseif ($null -ne $med.AudioDuration) {
         $totalMediaDurationMs += $med.AudioDuration
     } else {
-        # Default mock fallback for calculation (e.g. 30 mins) if no metadata
+        # Default safety fallback for calculation (e.g. 30 mins) if no metadata is available
         $totalMediaDurationMs += 1800000 
     }
 }
