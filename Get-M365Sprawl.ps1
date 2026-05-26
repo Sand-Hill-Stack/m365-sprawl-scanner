@@ -280,7 +280,10 @@ try {
     
     # Get active sites
     Write-Host "  [*] Querying active SharePoint Sites..."
-    $sites = Get-MgSite -All
+    $sites = Get-MgSite -Search "*" -ErrorAction SilentlyContinue
+    if ($null -eq $sites -or $sites.Count -eq 0) {
+        $sites = Get-MgSite -All -ErrorAction SilentlyContinue
+    }
     if ($null -eq $sites -or $sites.Count -eq 0) {
         Write-Host "  [!] No sites returned from directory list. Falling back to root site scan..."
         $sites = @(Get-MgSite -SiteId "root")
