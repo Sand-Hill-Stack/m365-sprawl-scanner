@@ -270,7 +270,7 @@ Ensure-GraphSDK
 try {
     Write-Host "  [*] Connecting to Microsoft Graph API..."
     $connectParams = @{
-        Scopes = @("Sites.Read.All", "User.Read.All")
+        Scopes = @("Sites.Read.All", "User.Read.All", "Files.Read.All")
     }
     if ($TenantId) {
         $connectParams["TenantId"] = $TenantId
@@ -288,7 +288,7 @@ try {
     
     Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites."
     
-    # Scan files
+    # Scan files in SharePoint sites
     foreach ($site in $sites) {
         Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))..."
         $drives = Get-MgSiteDrive -SiteId $site.Id -ErrorAction SilentlyContinue
@@ -300,6 +300,16 @@ try {
             $allFiles += $driveFiles
         }
     }
+
+    # Scan personal OneDrive files
+    Write-Host "  [*] Querying your personal OneDrive drive..."
+    $myDrive = Get-MgUserDrive -UserId "me" -ErrorAction SilentlyContinue
+    if ($null -ne $myDrive) {
+        Write-Host "      -> Scanning OneDrive: $($myDrive.Name)..."
+        $driveFiles = Get-SharePointFilesRecursively -DriveId $myDrive.Id
+        $allFiles += $driveFiles
+    }
+    
     Write-Host "  [✓] Directory Enumeration complete. Found $($allFiles.Count) total files."
     
 } catch {
