@@ -97,6 +97,12 @@ function Ensure-GraphSDK {
     } else {
         Write-Host " [OK]"
     }
+
+    # Explicitly import the modules to guarantee cmdlet recognition in the current session
+    Write-Host "  [*] Importing Microsoft.Graph modules..."
+    Import-Module -Name "Microsoft.Graph.Authentication" -ErrorAction Stop
+    Import-Module -Name "Microsoft.Graph.Files" -ErrorAction Stop
+    Import-Module -Name "Microsoft.Graph.Sites" -ErrorAction Stop
 }
 
 # Enumerate SharePoint drives recursively (Online Mode)
