@@ -295,7 +295,7 @@ try {
             $relativePath = "/sites/$relativePath"
         }
         
-        $siteQueryId = "$hostName:$relativePath"
+        $siteQueryId = "$($hostName):$($relativePath)"
         Write-Host "  [*] Fetching site metadata directly using ID: $siteQueryId..."
         try {
             $sites = @(Get-MgSite -SiteId $siteQueryId)
