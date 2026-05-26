@@ -5,7 +5,8 @@
 
 param (
     [int]$SiteLimit = 10,
-    [string]$TenantId
+    [string]$TenantId,
+    [string]$SitePath
 )
 
 $ErrorActionPreference = "Stop"
@@ -279,11 +280,38 @@ try {
     Write-Host "  [✓] Authenticated to Microsoft Graph."
     
     # Get active sites
-    Write-Host "  [*] Querying active SharePoint Sites..."
-    $sites = Get-MgSite -Search "*" -ErrorAction SilentlyContinue
-    if ($null -eq $sites -or $sites.Count -eq 0) {
-        $sites = Get-MgSite -All -ErrorAction SilentlyContinue
+    if ($SitePath) {
+        Write-Host "  [*] Targeting specific SharePoint Site: $SitePath"
+        # Parse Host and Relative Path
+        $hostName = "sandhillstack.sharepoint.com" # default fallback host
+        $relativePath = $SitePath
+        
+        if ($SitePath -match "https://([^/]+)(.*)") {
+            $hostName = $Matches[1]
+            $relativePath = $Matches[2]
+        }
+        
+        if (-not ($relativePath.StartsWith("/"))) {
+            $relativePath = "/sites/$relativePath"
+        }
+        
+        $siteQueryId = "$hostName:$relativePath"
+        Write-Host "  [*] Fetching site metadata directly using ID: $siteQueryId..."
+        try {
+            $sites = @(Get-MgSite -SiteId $siteQueryId)
+        } catch {
+            Write-Host "  [!] Failed to locate specific site: $($_.Exception.Message)"
+            Write-Host "  [*] Retrying with general directory search..."
+            $sites = Get-MgSite -Search "*" -ErrorAction SilentlyContinue
+        }
+    } else {
+        Write-Host "  [*] Querying active SharePoint Sites..."
+        $sites = Get-MgSite -Search "*" -ErrorAction SilentlyContinue
+        if ($null -eq $sites -or $sites.Count -eq 0) {
+            $sites = Get-MgSite -All -ErrorAction SilentlyContinue
+        }
     }
+    
     if ($null -eq $sites -or $sites.Count -eq 0) {
         Write-Host "  [!] No sites returned from directory list. Falling back to root site scan..."
         $sites = @(Get-MgSite -SiteId "root")
