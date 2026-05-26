@@ -121,7 +121,7 @@ function Get-SharePointFilesRecursively {
 
         foreach ($child in $children) {
             $currentPath = if ($ParentPath -eq "") { $child.Name } else { "$ParentPath/$($child.Name)" }
-            if ($child.Folder) {
+            if ($child.Folder -and $null -eq $child.File) {
                 $files += Get-SharePointFilesRecursively -DriveId $DriveId -FolderId $child.Id -ParentPath $currentPath
             } else {
                 # Map Graph video/audio facets if available
@@ -266,6 +266,12 @@ $allFiles = @()
 
 Write-Header "AUTHENTICATING & SCANNING ENVIRONMENT"
 Ensure-GraphSDK
+
+if (-not $SitePath) {
+    Write-Host ""
+    $SitePath = Read-Host "  [?] Enter the SharePoint Site Name or URL to scan (e.g., Dummydata)"
+    Write-Host ""
+}
 
 # Authenticate via Interactive Browser Flow
 try {
