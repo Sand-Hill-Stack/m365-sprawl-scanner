@@ -86,7 +86,7 @@ Once PowerShell (`pwsh`) is running, you can execute the tool using a single-lin
 >
 > Run this first inside your `pwsh` shell to pre-authenticate:
 > ```powershell
-> Connect-MgGraph -Scopes "Sites.Read.All", "User.Read.All"
+> Connect-MgGraph -Scopes "Sites.Read.All", "User.Read.All", "Files.Read.All"
 > ```
 
 ### Option A: Direct Web-Load execution (Zero Download)
@@ -108,7 +108,7 @@ iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercont
    ```
 3. Pre-authenticate your session (recommended):
    ```powershell
-   Connect-MgGraph -Scopes "Sites.Read.All", "User.Read.All"
+   Connect-MgGraph -Scopes "Sites.Read.All", "User.Read.All", "Files.Read.All"
    ```
 4. Run the scanner:
    ```powershell
@@ -126,6 +126,7 @@ iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercont
 * **Required Minimum Permissions:** 
   * `Sites.Read.All` - Required to enumerate SharePoint communication/team sites and document libraries.
   * `User.Read.All` - Required to map current admin user metadata.
+  * `Files.Read.All` - Required to read folders and metadata properties of document drive items (files) recursively.
 
 ---
 

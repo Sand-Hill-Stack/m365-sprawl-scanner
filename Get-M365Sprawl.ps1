@@ -115,7 +115,7 @@ function Get-SharePointFilesRecursively {
     $files = @()
     try {
         # Query kids in modern Graph SDK using Child endpoint
-        $children = Get-MgDriveItemChild -DriveId $DriveId -DriveItemId $FolderId -All -ErrorAction SilentlyContinue
+        $children = Get-MgDriveItemChild -DriveId $DriveId -DriveItemId $FolderId -All
         if ($null -eq $children) { return $files }
 
         foreach ($child in $children) {
@@ -270,7 +270,7 @@ Ensure-GraphSDK
 try {
     Write-Host "  [*] Connecting to Microsoft Graph API..."
     $connectParams = @{
-        Scopes = @("Sites.Read.All", "User.Read.All")
+        Scopes = @("Sites.Read.All", "User.Read.All", "Files.Read.All")
     }
     if ($TenantId) {
         $connectParams["TenantId"] = $TenantId
@@ -280,10 +280,10 @@ try {
     
     # Get active sites
     Write-Host "  [*] Querying active SharePoint Sites..."
-    $sites = Get-MgSite -All -ErrorAction SilentlyContinue
+    $sites = Get-MgSite -All
     if ($null -eq $sites -or $sites.Count -eq 0) {
         Write-Host "  [!] No sites returned from directory list. Falling back to root site scan..."
-        $sites = @(Get-MgSite -SiteId "root" -ErrorAction SilentlyContinue)
+        $sites = @(Get-MgSite -SiteId "root")
     }
     
     Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites:"
@@ -294,7 +294,7 @@ try {
     # Scan files
     foreach ($site in $sites) {
         Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))...."
-        $drives = Get-MgSiteDrive -SiteId $site.Id -ErrorAction SilentlyContinue
+        $drives = Get-MgSiteDrive -SiteId $site.Id
         if ($null -eq $drives) { continue }
         
         foreach ($drive in $drives) {
