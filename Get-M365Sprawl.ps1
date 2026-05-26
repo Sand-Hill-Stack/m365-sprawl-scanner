@@ -92,7 +92,7 @@ function Ensure-GraphSDK {
             Write-Host "  [✓] Microsoft.Graph SDK installed successfully."
         } else {
             Write-Host "  [!] Cannot run without Microsoft.Graph SDK. Exiting."
-            exit 1
+            return
         }
     } else {
         Write-Host " [OK]"
@@ -270,7 +270,7 @@ Ensure-GraphSDK
 try {
     Write-Host "  [*] Connecting to Microsoft Graph API..."
     $connectParams = @{
-        Scopes = @("Sites.Read.All", "User.Read.All", "Files.Read.All")
+        Scopes = @("Sites.Read.All", "User.Read.All")
     }
     if ($TenantId) {
         $connectParams["TenantId"] = $TenantId
@@ -279,47 +279,45 @@ try {
     Write-Host "  [✓] Authenticated to Microsoft Graph."
     
     # Get active sites
-    Write-Host "  [*] Querying active SharePoint Sites (limit $SiteLimit)..."
-    $sites = Get-MgSite -Top $SiteLimit -ErrorAction SilentlyContinue
+    Write-Host "  [*] Querying active SharePoint Sites..."
+    $sites = Get-MgSite -All -ErrorAction SilentlyContinue
     if ($null -eq $sites -or $sites.Count -eq 0) {
-        Write-Host "  [!] No sites found or access is restricted. Falling back to root site scan..."
+        Write-Host "  [!] No sites returned from directory list. Falling back to root site scan..."
         $sites = @(Get-MgSite -SiteId "root" -ErrorAction SilentlyContinue)
     }
     
-    Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites."
-    
-    # Scan files in SharePoint sites
+    Write-Host "  [✓] Discovered $($sites.Count) Active SharePoint Sites:"
     foreach ($site in $sites) {
-        Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))..."
+        Write-Host "      - Display Name: $($site.DisplayName) | URL: $($site.WebUrl)"
+    }
+    
+    # Scan files
+    foreach ($site in $sites) {
+        Write-Host "  [*] Enumerating Document Libraries in site: $($site.DisplayName) ($($site.Name))...."
         $drives = Get-MgSiteDrive -SiteId $site.Id -ErrorAction SilentlyContinue
         if ($null -eq $drives) { continue }
         
         foreach ($drive in $drives) {
-            Write-Host "      -> Scanning Drive Library: $($drive.Name)..."
+            # Skip OneDrive/personal drives (we only want standard SharePoint documentLibraries)
+            if ($drive.DriveType -and $drive.DriveType -ne "documentLibrary") {
+                Write-Host "      -> Skipping OneDrive/Personal Drive: $($drive.Name) (Type: $($drive.DriveType))"
+                continue
+            }
+            Write-Host "      -> Scanning SharePoint Drive Library: $($drive.Name)..."
             $driveFiles = Get-SharePointFilesRecursively -DriveId $drive.Id
             $allFiles += $driveFiles
         }
     }
-
-    # Scan personal OneDrive files
-    Write-Host "  [*] Querying your personal OneDrive drive..."
-    $myDrive = Get-MgUserDrive -UserId "me" -ErrorAction SilentlyContinue
-    if ($null -ne $myDrive) {
-        Write-Host "      -> Scanning OneDrive: $($myDrive.Name)..."
-        $driveFiles = Get-SharePointFilesRecursively -DriveId $myDrive.Id
-        $allFiles += $driveFiles
-    }
-    
     Write-Host "  [✓] Directory Enumeration complete. Found $($allFiles.Count) total files."
     
 } catch {
     Write-Host "  [ERROR] Graph API authentication or query failed: $($_.Exception.Message)"
-    exit 1
+    return
 }
 
 if ($allFiles.Count -eq 0) {
-    Write-Host "  [!] Zero files found to evaluate. Exiting."
-    exit 0
+    Write-Host "  [!] Zero files found to evaluate. Stop."
+    return
 }
 
 # -----------------------------------------------------------------------------
